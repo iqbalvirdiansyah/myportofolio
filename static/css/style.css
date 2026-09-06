@@ -4,10 +4,12 @@ body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-se
 h1, .brand { font-family: "Space Grotesk", -apple-system, sans-serif; }
 .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
 
+html { scroll-behavior: smooth; }
+
 .site-header { border-bottom: 1px solid var(--line); }
 .site-header .container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; }
 .brand { font-size: 1.3rem; font-weight: 700; color: var(--ink); text-decoration: none; }
-.site-header nav { display: flex; gap: 2rem; }
+.site-header nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
 .site-header nav a { color: var(--ink); text-decoration: none; font-size: 0.95rem; }
 
 .hero { padding: 4.5rem 0 5rem; }
@@ -30,7 +32,44 @@ h1, .brand { font-family: "Space Grotesk", -apple-system, sans-serif; }
 .photo-block { position: absolute; top: 1.25rem; left: 1.25rem; width: 100%; height: 100%; background-color: var(--accent); border-radius: var(--radius); z-index: 0; }
 .avatar { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--radius); border: 3px solid var(--ink); }
 
+/* Custom Sections Styling */
+.section-block { padding: 6rem 0; }
+.bg-alt { 
+    background-color: #ffffff; 
+    border-top: 1px solid var(--line); 
+    border-bottom: 1px solid var(--line); 
+}
+
+.section-title { font-size: 2.2rem; margin-bottom: 3.5rem; color: var(--ink); font-family: "Space Grotesk", -apple-system, sans-serif; border-bottom: 3px solid var(--accent); display: inline-block; padding-bottom: 0.5rem; }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; }
+.content-card { background-color: #ffffff; padding: 2.5rem; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); border-left: 4px solid var(--accent); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.bg-alt .content-card { background-color: var(--paper); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+.content-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08); }
+
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 1rem; }
+
+/* List Layout (for Experience) */
+.list-layout { display: flex; flex-direction: column; gap: 3rem; max-width: 800px; }
+.list-item { border-left: 3px solid var(--line); padding-left: 2rem; position: relative; transition: border-color 0.3s ease; }
+.list-item:hover { border-color: var(--accent); }
+.list-item::before { content: ""; position: absolute; left: -7px; top: 8px; width: 11px; height: 11px; border-radius: 50%; background-color: var(--accent); opacity: 0; transition: opacity 0.3s ease; }
+.list-item:hover::before { opacity: 1; }
+.item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; flex-wrap: wrap; gap: 1rem; }
+.role { font-size: 1.3rem; color: var(--ink); font-family: "Space Grotesk", sans-serif; }
+.period { font-size: 0.85rem; font-weight: 700; color: var(--paper); background-color: var(--accent-dark); padding: 0.3rem 0.8rem; border-radius: 20px; }
+.organization { font-weight: 600; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem; }
+.description { color: var(--ink); }
+
+.skills-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+.skill-tag { background-color: var(--ink); color: var(--paper); padding: 0.8rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; cursor: default; border: 2px solid transparent; }
+.skill-tag:hover { background-color: var(--paper); color: var(--ink); border-color: var(--ink); transform: scale(1.05); }
+
 .site-footer { padding: 1.5rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
+
+@media (max-width: 768px) {
+    .site-header nav { gap: 1rem; justify-content: flex-start; }
+}
 
 @media (max-width: 600px) {
     .hero-grid { grid-template-columns: 1fr; grid-template-areas: "identity" "photo" "details"; }
