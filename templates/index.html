@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iqbal Virdiansyah - Portfolio</title>
+    <title>{{ name }} - Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -14,12 +14,12 @@
 <body>
     <header class="site-header">
         <div class="container">
-            <a href="#profile" class="brand">Iqbal Virdiansyah</a>
+            <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
             <nav>
-                <a href="#profile">Profile</a>
-                <a href="#experience">Experience</a>
-                <a href="#projects">Projects</a>
-                <a href="#skills">Skills</a>
+                <a href="{% url 'main:show_main' %}">Profile</a>
+                <a href="{% url 'main:show_experience' %}">Experience</a>
+                <a href="{% url 'main:show_main' %}#projects">Projects</a>
+                <a href="{% url 'main:show_main' %}#skills">Skills</a>
             </nav>
         </div>
     </header>
@@ -29,24 +29,24 @@
             <div class="container hero-grid">
                 <div class="hero-identity">
                     <p class="hero-kicker">Information Systems &middot; Universitas Indonesia</p>
-                    <h1>Iqbal Virdiansyah</h1>
+                    <h1>{{ name }}</h1>
                 </div>
 
                 <div class="hero-photo">
                     <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/iqbal.jpg" alt="Photo of Iqbal Virdiansyah">
+                    <img class="avatar" src="/static/img/iqbal.jpg" alt="Photo of {{ name }}">
                 </div>
 
                 <div class="hero-details">
-                    <p class="bio">Information Systems undergraduate at Universitas Indonesia with a strong focus on Software Engineering, Artificial Intelligence, and Business Development. Passionate about integrating Data Science and Financial Management principles to architect scalable software solutions that drive organizational growth and system efficiency.</p>
+                    <p class="bio">{{ bio }}</p>
                     <dl class="meta-list">
                         <div class="meta-row">
                             <dt>NPM</dt>
-                            <dd>2206000000</dd>
+                            <dd>{{ npm }}</dd>
                         </div>
                         <div class="meta-row">
                             <dt>Program</dt>
-                            <dd>S1 Sistem Informasi</dd>
+                            <dd>{{ study_program }}</dd>
                         </div>
                     </dl>
                     <div class="social-links">
@@ -57,43 +57,8 @@
             </div>
         </section>
 
-        <!-- Experience Section (Activities & Achievements) -->
-        <section class="section-block bg-alt" id="experience">
-            <div class="container">
-                <h2 class="section-title">Experience & Leadership</h2>
-                <div class="list-layout">
-                    <article class="list-item">
-                        <div class="item-header">
-                            <h3 class="role">Finalist - Backend and AI Engineer</h3>
-                            <span class="period">Aug 2026</span>
-                        </div>
-                        <p class="organization">RISTEK Hackathon 2026</p>
-                        <p class="description">Developed and pitched VETO, a B2B middleware logistics software designed to intercept and prevent Over Dimension Over Load (ODOL) vehicle violations. Architected API validation systems and integrated automated AI workflows to ensure real-time data processing and high system reliability.</p>
-                    </article>
-
-                    <article class="list-item">
-                        <div class="item-header">
-                            <h3 class="role">Sponsorship and Partnership</h3>
-                            <span class="period">2025 - Present</span>
-                        </div>
-                        <p class="organization">COMPFEST</p>
-                        <p class="description">Directed comprehensive sponsorship strategies, securing high-value backers to drive organizational revenue growth. Managed external communications and successfully closed official B2B sponsorship deals with Google Cloud Indonesia.</p>
-                    </article>
-
-                    <article class="list-item">
-                        <div class="item-header">
-                            <h3 class="role">Mentor - Basic Programming</h3>
-                            <span class="period">2026</span>
-                        </div>
-                        <p class="organization">Universitas Indonesia</p>
-                        <p class="description">Mentored junior students in fundamental programming, covering software engineering concepts, problem-solving logic, and best coding practices.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
         <!-- Projects Section (Work Experience) -->
-        <section class="section-block" id="projects">
+        <section class="section-block bg-alt" id="projects">
             <div class="container">
                 <h2 class="section-title">Projects</h2>
                 <div class="card-grid">
@@ -119,7 +84,7 @@
         </section>
 
         <!-- Skills Section -->
-        <section class="section-block bg-alt" id="skills">
+        <section class="section-block" id="skills">
             <div class="container">
                 <h2 class="section-title">Skills & Languages</h2>
                 <div class="skills-grid">
@@ -140,7 +105,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Iqbal Virdiansyah. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>
 </body>
