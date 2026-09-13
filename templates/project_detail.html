@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.title }} - {{ name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=4">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
+            <nav>
+                <a href="{% url 'main:show_main' %}">Profile</a>
+                <a href="{% url 'main:show_main' %}#experience">Experience</a>
+                <a href="{% url 'main:show_projects' %}">Projects</a>
+                <a href="{% url 'main:show_main' %}#skills">Skills</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="section-block">
+            <div class="container">
+                <a href="{% url 'main:show_projects' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">← Back to Projects</a>
+                <h1 style="margin: 1rem 0; font-size: 2.5rem; color: var(--text-dark);">{{ project.title }}</h1>
+                <p class="role" style="font-weight: bold; color: var(--accent); margin-bottom: 2rem;">{{ project.role }}</p>
+                
+                <div style="background-color: var(--paper); padding: 2rem; border: 1px solid var(--line); border-radius: var(--radius); line-height: 1.8;">
+                    <h3 style="margin-top: 0;">Overview</h3>
+                    <p>{{ project.full_description }}</p>
+                    
+                    {% if project.link %}
+                    <div style="margin-top: 2rem;">
+                        <a href="{{ project.link }}" target="_blank" class="social-link" style="display: inline-block; padding: 0.5rem 1rem; border: 1px solid currentColor;">Visit Project ↗</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
