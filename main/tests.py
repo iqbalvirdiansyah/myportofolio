@@ -15,8 +15,8 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_main"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "index.html")
-        self.assertNotContains(response, self.experience.title)
-        self.assertContains(response, f'href="{reverse("main:show_experience")}"')
+        self.assertContains(response, self.experience.title)
+        self.assertContains(response, f'href="{reverse("main:show_projects")}"')
 
     def test_nonexistent_page_returns_404(self):
         response = self.client.get("/halaman-yang-tidak-ada/")
@@ -49,3 +49,33 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
+
+    def test_projects_page_accessible(self):
+        response = self.client.get(reverse("main:show_projects"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "projects.html")
+
+    def test_projects_page_empty_state(self):
+        from main.models import Project
+        Project.objects.all().delete()
+        response = self.client.get(reverse("main:show_projects"))
+        self.assertContains(response, "Belum ada proyek yang ditambahkan.")
+
+    def test_projects_data_displayed(self):
+        from main.models import Project
+        p = Project.objects.create(
+            title="Test Project",
+            role="Developer",
+            short_description="Short desc",
+            full_description="Long desc"
+        )
+        response = self.client.get(reverse("main:show_projects"))
+        self.assertContains(response, "Test Project")
+        self.assertContains(response, "Developer")
+        self.assertContains(response, "Short desc")
+        
+        # Test Detail page
+        response_detail = self.client.get(reverse("main:show_project_detail", args=[p.id]))
+        self.assertEqual(response_detail.status_code, 200)
+        self.assertTemplateUsed(response_detail, "project_detail.html")
+        self.assertContains(response_detail, "Long desc")
