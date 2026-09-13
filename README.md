@@ -1,5 +1,4 @@
 
-
 Nama : Iqbal Virdiansyah
 
 NPM : 2506656816
@@ -17,6 +16,18 @@ Kelas : PBP C
 3. **Batasan apa yang Anda rasakan pada static web murni ini, dan fungsionalitas dinamis apa yang ingin ditambahkan selanjutnya?**
    Batasan terbesar yang sangat terasa adalah sifatnya yang statis atau hardcoded. kalo saya mau memperbarui portofolio (misalnya menambah proyek baru, pengalaman organisasi, atau menambah keahlian), saya harus buka source code HTML dan memodifikasinya secara manual satu demi satu. Hal ini tidak efisien. Berdasarkan batasan ini, fungsionalitas dinamis yang paling ingin saya persiapkan ke depan adalah pengintegrasian basis data (menggunakan model bawaan Django/MVT) untuk menyimpan data Proyek, Pengalaman, dan *Skills*. Dengan begitu, konten portofolio dapat diisi dan dikelola secara dinamis melalui halaman *Django Admin* jadi seperti CMS (Content Management System).
 
+### Tugas 2
+
+1. **Jelaskan alur yang terjadi ketika pengguna membuka halaman portofolio baru...**
+   Gini alurnya: waktu user buka halaman `/projects/` di browser, request-nya pertama kali masuk ke `urls.py` utama milik proyek. Dari situ, request diterusin ke `urls.py` milik aplikasi `main` buat dicari rute yang pas. Kalau rutenya cocok, Django bakal manggil fungsi yang ada di `views.py` (misal `show_projects`). Di dalam *view* ini, kita minta data ke `models.py` (database). Setelah datanya dapet, *view* bakal ngelempar data tersebut (lewat *context*) ke file `projects.html` (*template*). Terakhir, *template* ini bakal nge-render HTML-nya dan dikirim balik ke browser buat ditampilin ke user.
+
+2. **Mengapa data untuk bagian portofolio baru sebaiknya disimpan pada model dan tidak ditulis langsung di dalam template?**
+   Biar nggak ribet kalau mau update konten! Kalau datanya di-hardcode langsung di HTML (*template*), tiap kali mau nambah atau ngedit project, kita harus bongkar *source code* HTML-nya secara manual. Kalau disimpen di *model* (database), aplikasinya jadi lebih dinamis. Kita tinggal nambahin datanya lewat database atau admin panel, dan otomatis *template*-nya bakal nyesuain pake sintaks *looping* (perulangan). Ini bikin aplikasi jauh lebih gampang di-*maintain* dan di- *scale* ke depannya tanpa takut ngerusak layout HTML.
+
+3. **Apa perbedaan fungsi makemigrations dan migrate pada Django? Berikan contoh...**
+   Gampangnya, `makemigrations` itu kayak bikin draf atau cetak biru (*blueprint*) dari perubahan database kita. Django nyatet perubahan apa aja yang kita lakuin di `models.py` dan disimpen ke file *migrations*. Nah, kalau `migrate`, itu fungsinya buat nge-eksekusi draf tadi langsung ke database benerannya (kayak bikin atau ngubah tabel di SQLite/PostgreSQL).
+   **Contohnya:** kalau aku nambahin atribut baru `link_github = models.URLField()` di model `Project`, aku wajib jalanin `makemigrations` biar Django nyatet perubahan itu, trus jalanin `migrate` biar tabel di databasenya bener-bener ketambahan kolom `link_github`.
+
 ---
 
 ## Deskripsi Proyek & Cara Menjalankan (*Setup Instructions*)
@@ -33,10 +44,14 @@ Proyek ini adalah *website* portofolio pribadi yang dibangun menggunakan *framew
 
 ## AI Disclosure
 - **Alat AI yang Digunakan:** Google AI Agent (terintegrasi pada IDE).
-- **Bagian yang Dibantu AI:** 
-  1. Melakukan konversi teks mentah dari berkas PDF CV *Applicant Tracking System* (ATS) milik saya menjadi susunan HTML (*Experience, Projects, Skills*).
-  2. Membantu memberikan fondasi awal untuk pembuatan *layout* responsif berbasis *CSS Grid* dan *Flexbox* (khususnya untuk penyusunan *timeline layout* yang elegan).
-- **Strategi Prompting:** 
-  Saya menyertakan seluruh teks profil CV saya langsung di dalam *prompt*, lalu memberikan instruksi dengan batasan yang sangat ketat ("murni dengan HTML5 dan CSS3, tanpa Tailwind/framework lain") untuk memastikan asisten AI tidak memberikan *code snippet* yang melanggar ketentuan tugas. Saya juga menginstruksikan spesifikasi desain ("jangan buat kotak-kotak, susun ke bawah") agar hasil kode sesuai ekspektasi.
-- **Analisis Kritis & Perbaikan Manual:** 
-  Keterbatasan AI sering kali terletak pada asumsinya dalam desain (*over-engineering*). Sebagai contoh, AI sempat menyarankan *styling* dalam bentuk *card-grid*, namun tampilan tersebut tidak cocok untuk pengalaman kerja. Oleh karena itu, saya secara manual mengevaluasi dan memberikan instruksi perbaikan (memerintahkan AI mengubah *grid* menjadi daftar menurun/vertikal dengan gaya *timeline*). Saya juga menyadari AI tidak paham mengenai konteks penamaan *class* yang ideal jika tidak diawasi, sehingga saya memastikan setiap *class* CSS tetap mudah dipelihara (*maintainable*).
+
+### Tugas 1 (Frontend Statis)
+- **Bagian yang Dibantu AI:** Konversi teks mentah dari berkas PDF CV *Applicant Tracking System* (ATS) menjadi susunan HTML (*Experience, Projects, Skills*) dan perancangan *CSS Grid*.
+- **Strategi Prompting:** Saya menyertakan seluruh profil teks dan memberikan batasan ketat ("murni HTML5 & CSS3 tanpa Tailwind") untuk mencegah pelonggaran syarat tugas.
+- **Analisis Kritis & Perbaikan Manual:** AI cenderung melakukan *over-engineering* dalam mendesain (misalnya menyarankan desain kotak-kotak untuk *Experience*). Saya melakukan intervensi manual untuk mengubah spesifikasi desainnya menjadi susunan menurun bergaya *timeline* agar *User Experience* lebih profesional.
+
+### Tugas 2 (Django MVT & Dinamis)
+- **Bagian yang Dibantu AI:** Menyusun arsitektur basis data pada `models.py` (seperti pemakaian `UUIDField`), mengimplementasikan fungsi `get_object_or_404` di `views.py`, serta otomatisasi penulisan *Unit Test* dan injeksi *dummy data* melalui terminal.
+- **Strategi Prompting:** Saya menyuapkan daftar *checklist* tugas (Rubrik) lalu memberikan kebebasan pada AI untuk membuat kerangka *testing*, namun saya memegang kendali arsitektur dengan instruksi spesifik ("jangan pisah halaman experience, hanya pisah projects dan buatkan halaman detailnya").
+- **Analisis Kritis & Perbaikan Manual:** Tutorial bawaan menyarankan agar setiap entitas dipisah ke halamannya sendiri-sendiri, namun saya mengarahkan AI untuk melanggar kebiasaan tutorial itu demi alasan estetika. AI sempat kebingungan mengatasi masalah *routing* jika semua disatukan, jadi saya harus turun tangan mengevaluasi dan memutuskan desain *hybrid*: Model `Experience` tetap dimuat di halaman utama, sementara model `Project` diekstraksi menjadi sistem *List/Detail view* URL tersendiri. AI tidak memahami gambaran besar desain portofolio sampai saya menyelaraskan fungsi *backend*-nya secara struktural.
+- **Log Prompting:** Seluruh instruksi dan *log* percakapan dengan AI tersimpan dan dapat dilacak pada histori IDE (*Workspace Agent*).
