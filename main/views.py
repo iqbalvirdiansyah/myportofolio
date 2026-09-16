@@ -1,10 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.core import serializers
+from django.http import HttpResponse
 from main.models import Experience, Project
+from main.forms import ProjectForm
 
 def show_main(request):
     context = {
         "name": "Iqbal Virdiansyah",
-        "npm": "2206000000",
+        "npm": "2506656816",
         "study_program": "S1 Sistem Informasi",
         "bio": (
             "Information Systems undergraduate at Universitas Indonesia with a strong focus "
@@ -23,14 +27,32 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+
+def get_projects_json(request):
+    title_query = request.GET.get("title", "").strip()
+    projects = Project.objects.all()
+    if title_query:
+        projects = projects.filter(title__icontains=title_query)
+    
+    projects_json = serializers.serialize("json", projects)
+    return HttpResponse(projects_json, content_type="application/json")
+
+
 def show_projects(request):
+    json_response = get_projects_json(request)
+    projects = serializers.deserialize(
+        "json", json_response.content.decode("utf-8"),
+    )
+    projects = [project.object for project in projects]
+    title_query = request.GET.get("title", "").strip()
+    
     context = {
         "name": "Iqbal Virdiansyah",
-        "projects_list": Project.objects.all(),
+        "projects_list": projects,
+        "title_query": title_query,
     }
     return render(request, "projects.html", context)
 
-from django.shortcuts import get_object_or_404
 
 def show_project_detail(request, id):
     project = get_object_or_404(Project, id=id)
@@ -39,3 +61,26 @@ def show_project_detail(request, id):
         "project": project,
     }
     return render(request, "project_detail.html", context)
+
+
+def create_project(request):
+    form = ProjectForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Proyek baru berhasil ditambahkan!")
+        return redirect("main:show_projects")
+    
+    context = {
+        "name": "Iqbal Virdiansyah",
+        "form": form,
+    }
+    return render(request, "projects_form.html", context)
+
+
+def delete_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    if request.method == "POST":
+        project.delete()
+        messages.success(request, "Project berhasil dihapus!")
+        return redirect("main:show_projects")
+    return redirect("main:show_projects")

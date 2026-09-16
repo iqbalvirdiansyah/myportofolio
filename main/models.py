@@ -31,7 +31,9 @@ class Project(models.Model):
     role = models.CharField(max_length=255)
     short_description = models.CharField(max_length=300)
     full_description = models.TextField()
+    tech_stack = models.CharField(max_length=255, default="Unspecified")
     link = models.URLField(blank=True, null=True)
+    project_image_url = models.URLField(blank=True, null=True, max_length=500)
 
     def __str__(self):
         return self.title
