@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core import serializers
 from django.http import HttpResponse
 from main.models import Experience, Project
-from main.forms import ProjectForm
+from main.forms import ProjectForm, ExperienceForm
 
 def show_main(request):
     context = {
@@ -20,12 +20,94 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+def get_experience_json(request):
+    experiences = Experience.objects.all().order_by("-started_at")
+    experiences_json = serializers.serialize("json", experiences)
+    return HttpResponse(experiences_json, content_type="application/json")
+
+
 def show_experience(request):
+    json_response = get_experience_json(request)
+    experiences = serializers.deserialize(
+        "json", json_response.content.decode("utf-8"),
+    )
+    experiences = [exp.object for exp in experiences]
     context = {
         "name": "Iqbal Virdiansyah",
-        "experience_list": Experience.objects.all(),
+        "experience_list": experiences,
     }
     return render(request, "experience.html", context)
+
+
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Pengalaman baru berhasil ditambahkan!")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Iqbal Virdiansyah",
+        "form": form,
+        "form_title": "Tambah Pengalaman",
+        "submit_label": "Simpan Pengalaman",
+        "cancel_url": "main:show_experience",
+    }
+    return render(request, "experience_form.html", context)
+
+
+def update_experience(request, id):
+    experience = get_object_or_404(Experience, id=id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Pengalaman berhasil diperbarui!")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Iqbal Virdiansyah",
+        "form": form,
+        "form_title": "Edit Pengalaman",
+        "submit_label": "Perbarui Pengalaman",
+        "cancel_url": "main:show_experience",
+        "experience": experience,
+    }
+    return render(request, "experience_form.html", context)
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def api_experience_detail(request, id):
+    """Handle GET, PUT, DELETE for a single Experience via JSON API.
+    - GET  : returns serialized Experience JSON.
+    - PUT  : expects JSON body with same fields as ExperienceForm, updates the instance.
+    - DELETE: deletes the instance.
+    CSRF token is exempted for simplicity in this demo (in production use proper protection).
+    """
+    experience = get_object_or_404(Experience, id=id)
+    if request.method == "GET":
+        data = serializers.serialize("json", [experience])
+        return JsonResponse(json.loads(data)[0], safe=False)
+    elif request.method == "PUT":
+        try:
+            payload = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        form = ExperienceForm(payload, instance=experience)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"status": "updated"})
+        else:
+            return JsonResponse({"errors": form.errors}, status=400)
+    elif request.method == "DELETE":
+        experience.delete()
+        return JsonResponse({"status": "deleted"})
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
 def get_projects_json(request):
