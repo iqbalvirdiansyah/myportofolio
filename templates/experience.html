@@ -9,8 +9,24 @@
     <main>
         <section class="experience-section" id="experience">
             <div class="container">
-                <p class="section-kicker">Perjalanan saya sejauh ini</p>
-                <h1>Experience</h1>
+                <div class="project-header" style="margin-bottom: 1.5rem;">
+                    <div>
+                        <p class="section-kicker">Perjalanan saya sejauh ini</p>
+                        <h1 style="margin: 0;">Experience</h1>
+                    </div>
+                    <a href="{% url 'main:create_experience' %}" class="button project-add-button">
+                        <span aria-hidden="true">+</span> Tambah Pengalaman
+                    </a>
+                </div>
+
+                {% if messages %}
+                <div style="margin-bottom: 1rem;">
+                    {% for message in messages %}
+                    <p style="color: var(--accent); font-weight: 600;">{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <div class="experience-grid">
                     {% for experience in experience_list %}
                     <article class="experience-card">
@@ -26,6 +42,11 @@
                         {% else %}
                         <p class="experience-status">Selesai</p>
                         {% endif %}
+
+                        <div class="project-card-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary" style="text-decoration: none;">Edit</a>
+                            {% include "components/experience_delete_modal.html" with experience=experience %}
+                        </div>
                     </article>
                     {% empty %}
                     <p class="empty-state">

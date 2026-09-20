@@ -75,6 +75,14 @@ def update_experience(request, id):
     return render(request, "experience_form.html", context)
 
 
+def delete_experience(request, id):
+    experience = get_object_or_404(Experience, id=id)
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "Pengalaman berhasil dihapus!")
+        return redirect("main:show_experience")
+    return redirect("main:show_experience")
+
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
