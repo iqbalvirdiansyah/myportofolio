@@ -28,6 +28,24 @@ Kelas : PBP C
    Gampangnya, `makemigrations` itu kayak bikin draf atau cetak biru (*blueprint*) dari perubahan database kita. Django nyatet perubahan apa aja yang kita lakuin di `models.py` dan disimpen ke file *migrations*. Nah, kalau `migrate`, itu fungsinya buat nge-eksekusi draf tadi langsung ke database benerannya (kayak bikin atau ngubah tabel di SQLite/PostgreSQL).
    **Contohnya:** kalau aku nambahin atribut baru `link_github = models.URLField()` di model `Project`, aku wajib jalanin `makemigrations` biar Django nyatet perubahan itu, trus jalanin `migrate` biar tabel di databasenya bener-bener ketambahan kolom `link_github`.
 
+### Tugas 3
+
+1. **Jelaskan mengapa kita menggunakan ModelForm pada Django alih-alih membuat form HTML secara manual. Selain itu, jelaskan pula mengapa kita diwajibkan menambahkan `{% csrf_token %}` pada form tersebut!**
+
+   `ModelForm` pada Django sangat menguntungkan karena ia secara otomatis membuat *field* form langsung dari definisi model yang sudah ada, sehingga kita tidak perlu menulis ulang validasi, tipe input, dan label secara manual. Selain menghemat banyak waktu, `ModelForm` juga menjaga konsistensi antara *form* dan *model* di database — jika struktur model berubah, form ikut menyesuaikan. Sebaliknya, form HTML manual membutuhkan kita untuk mendefinisikan setiap *field*, validasi, dan proses penyimpanan secara terpisah, yang rawan terhadap kesalahan dan inkonsistensi.
+
+   Adapun `{% csrf_token %}` **wajib** disertakan karena Django mengimplementasikan mekanisme *Cross-Site Request Forgery (CSRF) Protection*. CSRF adalah serangan di mana pihak jahat membuat pengguna yang sudah terautentikasi tanpa sadar mengirimkan request berbahaya ke server. `{% csrf_token %}` menyisipkan token rahasia unik ke dalam form, dan setiap request `POST` yang masuk akan divalidasi apakah token-nya cocok. Tanpa token ini, Django akan menolak setiap request `POST` dengan error `403 Forbidden`, dan situs kita rentan terhadap serangan CSRF.
+
+2. **Pada Tutorial 03, kita membahas format data JSON dan XML. Mengapa JSON lebih disukai dalam pengembangan aplikasi web modern dibandingkan XML?**
+
+   JSON (*JavaScript Object Notation*) lebih disukai karena beberapa alasan utama. Pertama, **sintaks JSON lebih ringkas dan mudah dibaca** oleh manusia dibanding XML yang penuh dengan *tag* pembuka dan penutup yang verbose. Data yang sama dalam JSON bisa berukuran lebih kecil, sehingga lebih hemat bandwidth. Kedua, JSON **natively didukung oleh JavaScript** — browser dapat langsung mem-*parse* JSON menjadi objek JavaScript tanpa library tambahan menggunakan `JSON.parse()`, yang sangat mempercepat pengembangan aplikasi web dan *Single Page Application (SPA)*. Ketiga, sebagian besar REST API dan ekosistem web modern (seperti `fetch API`, `axios`, dll.) secara *default* bekerja dengan format JSON. XML, meskipun masih relevan untuk kasus tertentu seperti konfigurasi atau *legacy system*, memiliki overhead sintaks yang lebih tinggi dan membutuhkan parser terpisah untuk diproses di JavaScript.
+
+3. **Jelaskan alur yang terjadi saat kamu menggunakan fungsi view untuk mengembalikan data portofoliomu dalam bentuk JSON. Mengapa kita perlu melakukan proses serialization pada model Django sebelum datanya dikembalikan?**
+
+   Alurnya dimulai ketika browser atau *client* mengirimkan HTTP request ke *endpoint* `/api/experiences/`. Request ini diterima oleh `urls.py` yang kemudian meneruskannya ke fungsi view `get_experience_json`. Di dalam view, kita mengambil data dari database melalui Django ORM (`Experience.objects.all()`). Hasilnya adalah sebuah `QuerySet` — yaitu koleksi objek Python dari model Django, **bukan** teks JSON.
+
+   Di sinilah *serialization* diperlukan. Model Django adalah objek Python dengan atribut dan method yang kompleks, sedangkan HTTP hanya bisa mentransfer teks. Proses `serializers.serialize("json", experiences)` mengubah (men-*serialize*) objek-objek Python tersebut menjadi string berformat JSON yang bisa dikirim sebagai response HTTP. Tanpa proses ini, kita tidak bisa langsung mengirimkan objek Python melalui jaringan. Setelah string JSON diterima *client*, ia dapat di-*parse* kembali menjadi data yang bisa digunakan (proses kebalikannya disebut *deserialisasi*).
+
 ---
 
 ## Deskripsi Proyek & Cara Menjalankan (*Setup Instructions*)
@@ -55,3 +73,8 @@ Proyek ini adalah *website* portofolio pribadi yang dibangun menggunakan *framew
 - **Strategi Prompting:** Saya menyuapkan daftar *checklist* tugas (Rubrik) lalu memberikan kebebasan pada AI untuk membuat kerangka *testing*, namun saya memegang kendali arsitektur dengan instruksi spesifik ("jangan pisah halaman experience, hanya pisah projects dan buatkan halaman detailnya").
 - **Analisis Kritis & Perbaikan Manual:** Tutorial bawaan menyarankan agar setiap entitas dipisah ke halamannya sendiri-sendiri, namun saya mengarahkan AI untuk melanggar kebiasaan tutorial itu demi alasan estetika. AI sempat kebingungan mengatasi masalah *routing* jika semua disatukan, jadi saya harus turun tangan mengevaluasi dan memutuskan desain *hybrid*: Model `Experience` tetap dimuat di halaman utama, sementara model `Project` diekstraksi menjadi sistem *List/Detail view* URL tersendiri. AI tidak memahami gambaran besar desain portofolio sampai saya menyelaraskan fungsi *backend*-nya secara struktural.
 - **Log Prompting:** Seluruh instruksi dan *log* percakapan dengan AI tersimpan dan dapat dilacak pada histori IDE (*Workspace Agent*).
+
+### Tugas 3 (ModelForm & CSRF)
+- **Bagian yang Dibantu AI:** Penulisan `ModelForm` untuk *Experience* & *Project*, penambahan `{% csrf_token %}` pada semua form, pembuatan sistem view berbasis JSON, serta pembuatan komponen alert UI (Toast).
+- **Strategi Prompting:** Saya fokus meminta otomatisasi proses serialisasi data JSON dan pembuatan file terpisah untuk script Javascript AJAX.
+- **Analisis Kritis & Perbaikan Manual:** Saat menambahkan notifikasi UI (Toast), AI sempat tidak sengaja menimpa script CSS utama yang menyebabkan layout berantakan. Saya langsung melakukan intervensi dengan memerintahkan pemulihan file statis dan meminta pemisahan *import* CSS. Selain itu, saya melarang pembuatan halaman khusus "AI Disclosure" di UI dan mewajibkan semuanya ditulis eksklusif di dalam `README.md`.
