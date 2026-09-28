@@ -1,3 +1,5 @@
 from django.contrib import admin
+from main.models import Project, Experience
 
-# Register your models here.
+admin.site.register(Project)
+admin.site.register(Experience)

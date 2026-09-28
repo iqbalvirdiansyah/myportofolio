@@ -38,9 +38,11 @@ def show_experience(request):
         "json", json_response.content.decode("utf-8"),
     )
     experiences = [exp.object for exp in experiences]
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
     context = {
         "name": "Iqbal Virdiansyah",
         "experience_list": experiences,
+        "is_editor": is_editor,
     }
     return render(request, "experience.html", context)
 
@@ -67,7 +69,7 @@ def create_experience(request):
 
 @login_required(login_url="/login/")
 def update_experience(request, id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or request.user.groups.filter(name='Editor').exists()):
         raise PermissionDenied
     experience = get_object_or_404(Experience, id=id)
     form = ExperienceForm(request.POST or None, instance=experience)
@@ -116,7 +118,7 @@ def api_experience_detail(request, id):
         data = serializers.serialize("json", [experience], use_natural_foreign_keys=True)
         return JsonResponse(json.loads(data)[0], safe=False)
     elif request.method == "PUT":
-        if not request.user.is_authenticated or not request.user.is_superuser:
+        if not request.user.is_authenticated or not (request.user.is_superuser or request.user.groups.filter(name='Editor').exists()):
             return JsonResponse({"error": "Forbidden"}, status=403)
         try:
             payload = json.loads(request.body)
@@ -154,11 +156,12 @@ def show_projects(request):
     )
     projects = [project.object for project in projects]
     title_query = request.GET.get("title", "").strip()
-    
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
     context = {
         "name": "Iqbal Virdiansyah",
         "projects_list": projects,
         "title_query": title_query,
+        "is_editor": is_editor,
     }
     return render(request, "projects.html", context)
 

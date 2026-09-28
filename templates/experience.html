@@ -47,8 +47,10 @@
 
                         <div class="project-card-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             {% include "components/experience_star.html" with experience=experience %}
-                            {% if user.is_superuser %}
+                            {% if user.is_superuser or is_editor %}
                             <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary" style="text-decoration: none;">Edit</a>
+                            {% endif %}
+                            {% if user.is_superuser %}
                             {% include "components/experience_delete_modal.html" with experience=experience %}
                             {% endif %}
                         </div>
