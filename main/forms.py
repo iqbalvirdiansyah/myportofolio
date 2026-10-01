@@ -1,4 +1,6 @@
 from django.forms import ModelForm, TextInput, Textarea, URLInput, Select, DateTimeInput
+from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags
 from main.models import Project, Experience
 
 class ProjectForm(ModelForm):
@@ -31,6 +33,24 @@ class ProjectForm(ModelForm):
             "link": URLInput(attrs={"placeholder": "https://github.com/..."}),
             "project_image_url": URLInput(attrs={"placeholder": "https://drive.google.com/thumbnail?id=...&sz=w1000"}),
         }
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Nama proyek tidak boleh hanya berisi tag HTML.")
+        return title
+        
+    def clean_tech_stack(self):
+        return strip_tags(self.cleaned_data.get("tech_stack", "")).strip()
+        
+    def clean_short_description(self):
+        return strip_tags(self.cleaned_data.get("short_description", "")).strip()
+        
+    def clean_full_description(self):
+        return strip_tags(self.cleaned_data.get("full_description", "")).strip()
+        
+    def clean_role(self):
+        return strip_tags(self.cleaned_data.get("role", "")).strip()
 
 
 class ExperienceForm(ModelForm):

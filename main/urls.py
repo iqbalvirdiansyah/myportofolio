@@ -15,7 +15,8 @@ from main.views import (
     get_projects_json,
     delete_project,
     toggle_star,
-    toggle_star_experience
+    toggle_star_experience,
+    create_project_ajax
 )
 
 app_name = "main"
@@ -32,6 +33,7 @@ urlpatterns = [
     # Projects
     path("projects/", show_projects, name="show_projects"),
     path("projects/add/", create_project, name="create_project"),
+    path("projects/add-ajax/", create_project_ajax, name="create_project_ajax"),
     path("projects/<uuid:id>/", show_project_detail, name="show_project_detail"),
     path("projects/<uuid:project_id>/delete/", delete_project, name="delete_project"),
     path("projects/<uuid:project_id>/star/", toggle_star, name="toggle_star"),
