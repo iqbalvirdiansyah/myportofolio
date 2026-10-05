@@ -46,6 +46,22 @@ Kelas : PBP C
 
    Di sinilah *serialization* diperlukan. Model Django adalah objek Python dengan atribut dan method yang kompleks, sedangkan HTTP hanya bisa mentransfer teks. Proses `serializers.serialize("json", experiences)` mengubah (men-*serialize*) objek-objek Python tersebut menjadi string berformat JSON yang bisa dikirim sebagai response HTTP. Tanpa proses ini, kita tidak bisa langsung mengirimkan objek Python melalui jaringan. Setelah string JSON diterima *client*, ia dapat di-*parse* kembali menjadi data yang bisa digunakan (proses kebalikannya disebut *deserialisasi*).
 
+### Tugas 4
+
+(Tidak ada pertanyaan reflektif untuk Tugas 4)
+
+### Tugas 5
+
+1. **Jelaskan apa itu debouncing dan mengapa teknik ini penting diterapkan pada fitur pencarian yang menggunakan AJAX!**
+   *Debouncing* adalah teknik *programming* yang menunda pengeksekusian suatu fungsi (seperti pengiriman *request* AJAX) hingga ada jeda waktu tertentu (misalnya 300ms) setelah aksi terakhir dari pengguna. Pada fitur pencarian AJAX, jika kita mengirim *request* langsung setiap kali pengguna mengetik satu huruf ("k", lalu "o", lalu "d", dst.), *server* akan dibombardir oleh puluhan *request* dalam hitungan detik. *Debouncing* penting karena ia mengurangi beban *server* (mencegah *DDoS* tidak sengaja) dan memastikan *request* hanya dikirim ketika pengguna sudah selesai/berhenti mengetik kata kunci secara utuh.
+
+2. **Jelaskan fungsi dari penggunaan await ketika kita menggunakan fetch()! Apa yang akan terjadi jika kita tidak menggunakan await?**
+   Kata kunci `await` digunakan untuk memberi tahu eksekusi JavaScript agar menjeda sementara operasi pada fungsi *asynchronous* hingga sebuah `Promise` diselesaikan (*resolved*) atau ditolak (*rejected*). Karena fungsi `fetch()` membutuhkan waktu untuk mengunduh data dari *server* melalui jaringan, kita harus menunggu responnya. Jika kita **tidak** menggunakan `await`, kode di baris selanjutnya akan langsung dieksekusi seketika sementara respons HTTP masih berstatus *pending* di latar belakang. Akibatnya, kita akan mendapatkan objek `Promise` yang belum selesai alih-alih data JSON yang kita butuhkan, dan ini akan menyebabkan *error* saat kode mencoba membaca data yang sebenarnya belum tiba.
+
+3. **Jelaskan apa itu serangan XSS (Cross-Site Scripting) dan mengapa data yang ditampilkan melalui AJAX/JavaScript lebih rentan terhadap serangan ini daripada data yang ditampilkan langsung melalui template Django!**
+   *Cross-Site Scripting* (XSS) adalah kerentanan keamanan di mana penyerang menyuntikkan kode berbahaya (seperti skrip JavaScript `<script>alert('hack')</script>`) ke dalam halaman *web* yang sah. Saat pengguna lain membuka halaman tersebut, skrip berbahaya itu akan tereksekusi oleh *browser*. 
+   Data yang dimuat melalui AJAX dan dirender secara manual via JavaScript (misalnya disisipkan menggunakan properti `.innerHTML`) sangat rentan karena JavaScript tidak secara otomatis membedakan mana yang merupakan data *string* murni dan mana yang merupakan *tag* HTML. Sebaliknya, jika data tersebut dirender langsung melalui sistem *template* Django (`{{ nama_variabel }}`), Django memiliki fitur bawaan yang akan secara otomatis mengamankan (*escape*) semua karakter khusus (seperti `<` dan `>`) sebelum dikirimkan ke HTML, sehingga sangat aman dari XSS *default*. Oleh karena itu, saat menggunakan AJAX, kita dituntut untuk menerapkan teknik sanitasi manual (seperti fungsi `escapeHtml()`).
+
 ---
 
 ## Deskripsi Proyek & Cara Menjalankan (*Setup Instructions*)
@@ -83,3 +99,8 @@ Proyek ini adalah *website* portofolio pribadi yang dibangun menggunakan *framew
 - **Bagian yang Dibantu AI:** Evaluasi kode *authentication* (login, register, logout), manajemen *cookie* sesi (`last_login`), dan pengujian logika *authorization* (hak akses *superuser* dan grup *Editor*). AI juga membantu mendeteksi *typo* (seperti kesalahan penulisan parameter `None` di form registrasi) serta *bug* pada implementasi `ManyToManyField` untuk fitur pemberian *Star*.
 - **Strategi Prompting:** Saya menulis dan mengimplementasikan sebagian besar logika kode secara mandiri dengan mengikuti panduan Tutorial 04 dan spesifikasi *Individual Assignment 4*. Setelah kode selesai, saya menyuapkan *source code* saya ke AI dan memintanya bertindak sebagai *code reviewer* yang tegas. Saya hanya menginstruksikan AI untuk mencari *bug*, mengevaluasi celah keamanan (otorisasi), dan baru meminta perbaikan jika ada *error* yang tidak bisa saya selesaikan sendiri.
 - **Analisis Kritis & Perbaikan Manual:** Saat saya mencoba memberikan hak akses parsial bagi peran "Editor" (bisa *update* namun tidak bisa *create*/*delete*), saya sempat tertahan pada struktur pengecekan di dalam *views*. Setelah meminta petunjuk dari AI, AI menyarankan pendekatan yang lebih bersih dengan menggunakan `request.user.groups.filter(name='Editor').exists()`. Selain itu, melalui evaluasi AI, saya baru menyadari bahwa *endpoint* API JSON masih membocorkan ID internal *database* pengguna secara publik. Saya kemudian menindaklanjuti hal tersebut secara manual dengan menambahkan argumen pengaman `use_natural_foreign_keys=True` pada proses *serialization*, sebuah langkah krusial untuk menjaga integritas data sistem.
+
+### Tugas 5
+- **Bagian yang Dibantu AI:** Pemindahan *utility function* JavaScript, transisi rendering dari *server-side* ke *client-side* (*AJAX Fetch*), penyesuaian logika validasi form untuk menangkal *Cross-Site Scripting* (XSS), implementasi fitur fitur *Search Debouncing*, serta pendampingan untuk menyusun jawaban pertanyaan reflektif.
+- **Strategi Prompting:** Saya menggunakan instruksi *Slash Command* `/plan` untuk menuntut AI merancang *Implementation Plan* terlebih dahulu sebelum menyentuh kode, guna menghindari penyimpangan arsitektur dan *over-engineering* yang tidak perlu (halusinasi).
+- **Analisis Kritis & Perbaikan Manual:** Saya menegaskan dan mengoreksi pemisahan struktur *script* global (`utils.js`) agar *template* Django menjadi lebih *modular* serta memastikan bahwa aturan hak akses (hanya Superuser yang dapat memunculkan form modal *Experience*) benar-benar dihormati dan tidak menimbulkan kelumpuhan *event listener* pada komponen UI pengguna reguler.
