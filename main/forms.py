@@ -88,3 +88,15 @@ class ExperienceForm(ModelForm):
         self.fields["thumbnail"].required = False
         if self.instance and self.instance.ended_at:
             self.initial["ended_at"] = self.instance.ended_at.strftime("%Y-%m-%dT%H:%M")
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Nama pengalaman tidak boleh hanya berisi tag HTML.")
+        return title
+        
+    def clean_description(self):
+        return strip_tags(self.cleaned_data.get("description", "")).strip()
+        
+    def clean_category(self):
+        return strip_tags(self.cleaned_data.get("category", "")).strip()
