@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -150,4 +151,8 @@ WHITENOISE_USE_FINDERS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://pws.cs.ui.ac.id']
+CSRF_TRUSTED_ORIGINS = [
+    'https://pws.cs.ui.ac.id',
+    'https://iqbal-virdiansyah-myportofolio.pws.cs.ui.ac.id',
+    'https://*.pws.cs.ui.ac.id',
+]
