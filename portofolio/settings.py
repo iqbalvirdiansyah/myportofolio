@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'portofolio.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if PRODUCTION:
+if PRODUCTION and os.getenv('DB_PORT', '').isdigit():
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
