@@ -9,7 +9,7 @@
     <section class="experience-section">
         <div class="container">
             <h1>{{ form_title }}</h1>
-            <form method="post" class="project-form">
+            <form id="experience-page-form" method="post" class="project-form">
                 {% csrf_token %}
                 {% for field in form %}
                 <div class="form-group">
@@ -31,4 +31,48 @@
         </div>
     </section>
 </main>
+
+{% if experience %}
+<script>
+    const experiencePageForm = document.getElementById('experience-page-form');
+    if (experiencePageForm) {
+        experiencePageForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const submitButton = experiencePageForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            try {
+                const fields = new FormData(experiencePageForm);
+                const endedAtValue = fields.get('ended_at');
+                const payload = {
+                    title: fields.get('title'),
+                    description: fields.get('description'),
+                    category: fields.get('category'),
+                    thumbnail: fields.get('thumbnail') || '',
+                    ended_at: endedAtValue ? endedAtValue : null,
+                };
+                const response = await fetch("{% url 'api:experience-detail' experience.id %}", {
+                    method: 'PATCH',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    const messages = Object.values(data).flat().filter(value => typeof value === 'string');
+                    throw new Error(messages.join(' ') || `Request failed (HTTP ${response.status}).`);
+                }
+                showToast('Berhasil', 'Pengalaman berhasil diperbarui!', 'success');
+                window.location.href = "{% url cancel_url %}";
+            } catch (error) {
+                showToast('Gagal memperbarui pengalaman', error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    }
+</script>
+{% endif %}
 {% endblock content %}
