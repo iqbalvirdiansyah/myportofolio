@@ -33,29 +33,28 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "experience.html")
         self.assertContains(response, 'id="experience-search-form"')
-        self.assertContains(response, reverse("main:get_experience_json"))
+        self.assertContains(response, reverse("api:experience-list"))
 
-        json_response = self.client.get(reverse("main:get_experience_json"))
-        self.assertEqual(json_response.status_code, 200)
-        data = json_response.json()
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["fields"]["title"], self.experience.title)
-        self.assertEqual(data[0]["fields"]["description"], self.experience.description)
-        self.assertTrue(data[0]["fields"]["is_ongoing"])
+        api_response = self.client.get(reverse("api:experience-list"))
+        self.assertEqual(api_response.status_code, 200)
+        self.assertEqual(len(api_response.data), 1)
+        self.assertEqual(api_response.data[0]["title"], self.experience.title)
+        self.assertEqual(api_response.data[0]["description"], self.experience.description)
+        self.assertTrue(api_response.data[0]["is_ongoing"])
 
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
         response = self.client.get(reverse("main:show_experience"))
         self.assertContains(response, "Belum ada pengalaman yang ditambahkan atau ditemukan.")
-        json_response = self.client.get(reverse("main:get_experience_json"))
-        self.assertEqual(json_response.json(), [])
+        api_response = self.client.get(reverse("api:experience-list"))
+        self.assertEqual(api_response.data, [])
 
     def test_completed_experience(self):
         self.experience.ended_at = timezone.now()
         self.experience.save()
         self.assertFalse(self.experience.is_ongoing)
-        json_response = self.client.get(reverse("main:get_experience_json"))
-        self.assertFalse(json_response.json()[0]["fields"]["is_ongoing"])
+        api_response = self.client.get(reverse("api:experience-list"))
+        self.assertFalse(api_response.data[0]["is_ongoing"])
 
     def test_projects_page_accessible(self):
         response = self.client.get(reverse("main:show_projects"))
