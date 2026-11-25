@@ -18,7 +18,6 @@ from main.serializers import ExperienceSerializer, ProjectSerializer
 
 
 @api_view(["GET", "HEAD", "POST"])
-@authentication_classes([SessionAuthentication])
 @permission_classes([IsPortfolioOwnerOrReadOnly])
 def project_list(request):
     if request.method in ("GET", "HEAD"):
@@ -40,7 +39,6 @@ def project_list(request):
 
 
 @api_view(["GET", "HEAD", "PUT", "PATCH", "DELETE"])
-@authentication_classes([SessionAuthentication])
 @permission_classes([IsPortfolioOwnerOrReadOnly])
 def project_detail(request, project_id):
     project = get_object_or_404(
@@ -141,3 +139,11 @@ def experience_star(request, experience_id):
         experience.starred_by.add(request.user)
     serializer = ExperienceSerializer(experience, context={"request": request})
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_logout(request):
+    if request.auth is not None:
+        request.auth.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

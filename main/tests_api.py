@@ -54,11 +54,12 @@ class ProjectAPITest(APITestCase):
         self.assertEqual(self.client.get(url).status_code, status.HTTP_404_NOT_FOUND)
 
     def test_guest_and_visitor_cannot_write(self):
-        for user in (None, self.visitor):
+        # Guest gets 401 (TokenAuthentication first), logged-in visitor gets 403.
+        for user, expected in ((None, 401), (self.visitor, 403)):
             self.client.force_authenticate(user=user)
-            self.assertEqual(self.client.post(self.list_url, self.payload, format="json").status_code, 403)
-            self.assertEqual(self.client.patch(self.detail_url, {"title": "Changed"}, format="json").status_code, 403)
-            self.assertEqual(self.client.delete(self.detail_url).status_code, 403)
+            self.assertEqual(self.client.post(self.list_url, self.payload, format="json").status_code, expected)
+            self.assertEqual(self.client.patch(self.detail_url, {"title": "Changed"}, format="json").status_code, expected)
+            self.assertEqual(self.client.delete(self.detail_url).status_code, expected)
         self.assertEqual(Project.objects.count(), 1)
         self.project.refresh_from_db()
         self.assertEqual(self.project.title, "Portfolio")
